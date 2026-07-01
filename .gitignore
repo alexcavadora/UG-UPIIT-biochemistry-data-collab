@@ -1,1 +1,8 @@
 *__pycache__*
+plots/*
+models/*
+data_csv/*
+venv/*
+*.md
+!README.md
+results/*
