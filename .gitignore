@@ -6,3 +6,5 @@ venv/*
 *.md
 !README.md
 results/*
+raw_data
+*.DS_Store
