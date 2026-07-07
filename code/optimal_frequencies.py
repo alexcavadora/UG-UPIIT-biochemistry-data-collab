@@ -32,11 +32,19 @@ class FrequencyOptimizer:
     complementary feature-selection methods, then reports a consensus.
     """
 
-    def __init__(self, dataset, target_col="biomass"):
+    def __init__(self, dataset, target_col="biomass", exclude_freqs=None):
         self.dataset = dataset.copy()
         self.target_col = target_col
+        self.exclude_freqs = set(exclude_freqs) if exclude_freqs else set()
         self.z_cols = sorted([c for c in dataset.columns if c.startswith('Z_')])
         self.d_cols = sorted([c for c in dataset.columns if c.startswith('D_')])
+        if self.exclude_freqs:
+            before = len(self.z_cols) + len(self.d_cols)
+            self.z_cols = [c for c in self.z_cols if self._extract_freq(c) not in self.exclude_freqs]
+            self.d_cols = [c for c in self.d_cols if self._extract_freq(c) not in self.exclude_freqs]
+            after = len(self.z_cols) + len(self.d_cols)
+            print(f"  Excluding frequencies {sorted(self.exclude_freqs)}: "
+                f"{before - after} column(s) dropped ({before} → {after})")
         self.all_cols = self.z_cols + self.d_cols
 
     def _extract_freq(self, col):
@@ -310,7 +318,7 @@ def _plot_universal_consensus(combined_votes, targets_used):
     plt.close()
 
 
-def run_optimal_frequency_analysis(dataset, targets=None):
+def run_optimal_frequency_analysis(dataset, targets=None, exclude_freqs=None):
     """
     Finds the best impedance/dielectric frequencies to predict and monitor
     biomass and any other available bioindicators (lactate, glucose, spores,
@@ -336,7 +344,7 @@ def run_optimal_frequency_analysis(dataset, targets=None):
             print(f"\n(skipping '{target}': only {n_valid} valid readings)")
             continue
 
-        optimizer = FrequencyOptimizer(dataset, target_col=target)
+        optimizer = FrequencyOptimizer(dataset, target_col=target, exclude_freqs=exclude_freqs)
         consensus = optimizer.run()
         per_target_consensus[target] = consensus
         optimizers[target] = optimizer
