@@ -5,9 +5,11 @@ sys.path.insert(0, str(Path(__file__).parent))
 
 from code.loader import DatasetBuilder
 from code.timeseries_analysis import run_time_series_analysis
+from code.optimal_frequencies import run_optimal_frequency_analysis
 
 if __name__ == "__main__":
     builder = DatasetBuilder()
     dataset = builder.build_full_dataset()
     print(f"Dataset loaded: {dataset.shape}")
     run_time_series_analysis(dataset)
+    run_optimal_frequency_analysis(dataset)
